@@ -17,6 +17,7 @@ public class Percolation {
     private int virtualTopIndex;
     private int virtualBottomIndex;
     private boolean[][] percolationSystem; //binary true/false maps to open/close
+    private int openLocationsCount;
 
     private final static int NUM_VIRTUAL = 2;
     //below needed due to starting at 0 array vs. 1 numerical start
@@ -33,8 +34,19 @@ public class Percolation {
         }
     }
 
+    //maps row col to 1D union find index
     private int ijCoordsTo1DCoords(int i, int j){
         return sizeOfGrid * (i - INDEX_SHIFT ) + j;
+    }
+
+    private void connectAdjacentLocations(int row, int col, int sitePosition){
+        try {
+            if(isOpen(row, col)){
+                unionFindDatatype.union(sitePosition, ijCoordsTo1DCoords(row, col))
+            }
+        }
+        catch (IndexOutOfBoundsException e){
+        }
     }
 
 
@@ -50,7 +62,26 @@ public class Percolation {
 
     // opens the site (row, col) if it is not open already
     public void open(int row, int col){
-
+        if (isOpen(row, col)){
+            return;
+        }
+        //opens site
+        percolationSystem[row - INDEX_SHIFT][col - INDEX_SHIFT] = true;
+        openLocationsCount++;
+        //connect newly opened site to all adjacent sites
+        int sitePosition = ijCoordsTo1DCoords(row, col);
+        //using union which connects locations p and q
+        connectAdjacentLocations(row - 1, col, sitePosition); //above
+        connectAdjacentLocations(row + 1, col, sitePosition); //below
+        connectAdjacentLocations(row, col - 1, sitePosition); //left
+        connectAdjacentLocations(row, col + 1, sitePosition); //right
+        //connect to virtual top and/or bottom
+        if (row == 1){
+            unionFindDatatype.union(sitePosition, 0);
+        }
+        if (row == sizeOfGrid){
+            unionFindDatatype.union(virtualBottomIndex, sitePosition);
+        }
     }
 
     // is the site (row, col) open?
@@ -61,18 +92,33 @@ public class Percolation {
     }
 
     // is the site (row, col) full?
+    // result if open site can be connected to another open site via chain of neighboring sites
     public boolean isFull(int row, int col){
-
+        //check boundaries
+        checkBoundaries(row, col);
+        // converts 2D coords to 1D coords, then returns true if the two sites are in the same component.
+        int sitePosition = ijCoordsTo1DCoords(row, col);
+        return unionFindDatatype.connected(0, sitePosition);
     }
 
     // returns the number of open sites
     public int numberOfOpenSites(){
-
+        return openLocationsCount;
     }
 
     // does the system percolate?
     public boolean percolates(){
+        boolean result;
 
+        //edge case, if 1 it must percolate or not 
+        if (sizeOfGrid == 1 ){
+            return percolationSystem[0][0];
+        }
+        else {
+            result = unionFindDatatype.connected(0, virtualBottomIndex);
+        }
+
+        return result;
     }
 
     public static void main(String[] args) {
