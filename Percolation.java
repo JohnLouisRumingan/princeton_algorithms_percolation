@@ -18,6 +18,19 @@ public class Percolation {
     private int virtualBottomIndex;
     private boolean[][] percolationSystem;
 
+    private final static int NUM_VIRTUAL = 2;
+    //below needed due to starting at 0 array vs. 1 numerical start
+    private final static int INDEX_SHIFT = 1;
+
+    //error catch for boundaries
+    private void checkBoundaries(int i, int j){
+        if(i >= sizeOfGrid || j >= sizeOfGrid || i < 0 || j < 0){
+            throw new java.lang.IndexOutOfBoundsException(
+                "Index out of bounds"
+            );
+        }
+    }
+
 
     //creates n-by-n grid, with all sites initially blocked
     // param n = size of grid
@@ -26,7 +39,7 @@ public class Percolation {
         this.virtualTopIndex = 0;
         this.virtualBottomIndex = (sizeOfGrid * sizeOfGrid) + 1;
         percolationSystem = new boolean[sizeOfGrid][sizeOfGrid];
-        
+        unionFindDatatype = new WeightedQuickUnionUF(sizeOfGrid * sizeOfGrid + NUM_VIRTUAL);
     }
 
     // opens the site (row, col) if it is not open already
@@ -51,7 +64,7 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates(){
-        
+
     }
 
     public static void main(String[] args) {
