@@ -16,19 +16,25 @@ public class Percolation {
     private int sizeOfGrid;
     private int virtualTopIndex;
     private int virtualBottomIndex;
-    private boolean[][] percolationSystem;
+    private boolean[][] percolationSystem; //binary true/false maps to open/close
 
     private final static int NUM_VIRTUAL = 2;
     //below needed due to starting at 0 array vs. 1 numerical start
     private final static int INDEX_SHIFT = 1;
 
     //error catch for boundaries
+    // param i row, param j column 
+    // checks boundaries of percolation system 
     private void checkBoundaries(int i, int j){
         if(i >= sizeOfGrid || j >= sizeOfGrid || i < 0 || j < 0){
             throw new java.lang.IndexOutOfBoundsException(
                 "Index out of bounds"
             );
         }
+    }
+
+    private int ijCoordsTo1DCoords(int i, int j){
+        return sizeOfGrid * (i - INDEX_SHIFT ) + j;
     }
 
 
@@ -48,8 +54,10 @@ public class Percolation {
     }
 
     // is the site (row, col) open?
+    //invoke boundary check, then check if it is open
     public boolean isOpen(int row, int col){
-
+        checkBoundaries( row - INDEX_SHIFT, col - INDEX_SHIFT);
+        return percolationSystem[row - INDEX_SHIFT][col - INDEX_SHIFT];
     }
 
     // is the site (row, col) full?
